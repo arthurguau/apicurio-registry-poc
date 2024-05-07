@@ -1,0 +1,128 @@
+
+//******************************************************************//
+//--- try 2.4.x-release
+docker pull apicurio/apicurio-registry-sql:2.4.x-release
+
+//-- docker config values
+
+
+
+//-- ****** run local ****** --//
+docker run -it -p 8080:8080 apicurio/apicurio-registry-sql:2.4.x-release
+
+
+
+//--********  Migrate custom software to Azure App Service using a custom container ******* --//
+https://docs.microsoft.com/en-us/azure/app-service/tutorial-custom-container?pivots=container-linux
+
+
+//------------------------ Docker commands:
+
+//--- Pull image
+docker pull apicurio/apicurio-registry-mem
+
+//----- create and run a container
+docker run -it -p 8080:8080 apicurio/apicurio-registry-mem:latest
+
+//--- test
+curl -X POST -H "Content-type: application/json; artifactType=AVRO" -H "X-Registry-ArtifactId: share-price" --data '{"type":"record","name":"price","namespace":"com.example","fields":[{"name":"symbol","type":"string"},{"name":"price","type":"string"}]}' http://localhost:8080/apis/registry/v2/groups/my-group/artifacts
+
+
+//--- tag image:
+docker tag apicurio-registry-mem FunnyGorillaContainerRegistry.azurecr.io/apicurio-registry-mem:latest
+
+
+//-------------------------- Azure Container Registry:
+
+//--- login into  Azure Container Registry: 
+docker login FunnyGorillaContainerRegistry.azurecr.io --username FunnyGorillaContainerRegistry
+
+--password: l376aMVRMdoq7/QGjYcC1rCOZaXa47Ox
+
+
+//---- Push image to Azure container registry
+docker push <registry-name>.azurecr.io/appsvc-tutorial-custom-image:latest
+
+
+//--- check my images: 
+az acr repository list -n FunnyGorillaContainerRegistry
+
+
+
+
+//--***********************************************************************--//
+//--***** Configure App Service to deploy the image from the registry ***** --//
+
+//-- 1. Create an App Service plan using the az appservice plan create command:
+az appservice plan create --name myAppServicePlan --resource-group myResourceGroup --is-linux
+
+//-- 2. Create the web app with the az webpp create command:
+az webapp create --resource-group myResourceGroup 
+                 --plan myAppServicePlan 
+				 --name <app-name> 
+				 --deployment-container-image-name <registry-name>.azurecr.io/appsvc-tutorial-custom-image:latest
+
+//-- 3. Use az webapp config appsettings set to set the WEBSITES_PORT environment variable as expected by the app code:
+az webapp config appsettings set --resource-group ServiceMesh-Demo --name apicurio --settings WEBSITES_PORT=8080
+
+
+
+//-- 4. Enable the system-assigned managed identity for the web app by using the az webapp identity assign command:
+az webapp identity assign --resource-group myResourceGroup --name <app-name> --query principalId --output tsv
+
+
+//-- 5. Retrieve your subscription ID with the az account show command, which you need in the next step:
+az account show --query id --output tsv
+
+
+
+
+
+//-- ****** Deploy the image and test the app *********** --//
+
+//-- 1. Use the * az webapp config container set * command to specify the container registry and the image to deploy for the web app:
+az webapp config container set --name <app-name> 
+                               --resource-group myResourceGroup 
+                               --docker-custom-image-name <registry-name>.azurecr.io/appsvc-tutorial-custom-image:latest 
+							   --docker-registry-server-url https://<registry-name>.azurecr.io
+
+//-- 2. To test the app, browse to https://<app-name>.azurewebsites.net
+https://apicurio.azurewebsites.net
+
+
+az webapp log config --name apicurio --resource-group ServiceMesh-Demo --docker-container-logging filesystem
+
+az webapp log tail --name apicurio --resource-group ServiceMesh-Demo
+
+
+
+
+//---- API commands:  GET
+curl http://apicurio.azurewebsites.net/api/artifacts/
+curl http://apicurio.azurewebsites.net/api/artifacts/e6ce0396-caff-4c5f-8e1b-2829f0fcc0df
+
+
+//---- POST:
+curl -X POST -H "Content-type: application/json; artifactType=AVRO" \
+  -H "X-Registry-ArtifactId: share-price" \ 
+  -H "X-Registry-Version: 1.1.1" \
+  --data '{"type":"record","name":"price","namespace":"com.example", \
+   "fields":[{"name":"symbol","type":"string"},{"name":"price","type":"string"}]}' \ 
+  http://apicurio.azurewebsites.net/api/artifacts/
+
+curl -X POST -H "Content-type: application/json; artifactType=AVRO" -H "X-Registry-ArtifactId: share-price" -H "X-Registry-Version: 1.1.1" --data '{"type":"record","name":"price","namespace":"com.example", "fields":[{"name":"symbol","type":"string"},{"name":"price","type":"string"}]}' http://apicurio.azurewebsites.net/api/artifacts/
+
+curl http://apicurio.azurewebsites.net/api/artifacts/
+
+
+
+curl -X POST -H "Content-type: application/json; artifactType=AVRO" \
+  -H "X-Registry-ArtifactId: share-price" \ 
+  --data '{"type":"record","name":"price","namespace":"com.example", \
+   "fields":[{"name":"symbol","type":"string"},{"name":"price","type":"string"}]}' \ 
+  http://localhost/apis/registry/v2/groups/my-group/artifacts 
+
+
+curl -X POST -H "Content-type: application/json; artifactType=AVRO" -H "X-Registry-ArtifactId: share-price" --data '{"type":"record","name":"price","namespace":"com.example","fields":[{"name":"symbol","type":"string"},{"name":"price","type":"string"}]}' http://localhost:8080/apis/registry/v2/groups/my-group/artifacts
+
+

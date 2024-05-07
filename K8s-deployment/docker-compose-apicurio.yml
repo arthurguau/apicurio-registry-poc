@@ -1,0 +1,26 @@
+version: '3.1'
+
+services:
+  postgres:
+    image: postgres:16.2
+    hostname: postgres
+    networks: 
+      - apicurio-network
+    environment:
+      POSTGRES_USER: apicurio-registry
+      POSTGRES_PASSWORD: password
+  apicurio:
+    image: apicurio/apicurio-registry-sql:2.5.11.Final
+    hostname: apicurio
+    networks: 
+     - apicurio-network
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+    environment:
+      REGISTRY_DATASOURCE_URL: 'jdbc:postgresql://postgres/apicurio-registry'
+      REGISTRY_DATASOURCE_USERNAME: apicurio-registry
+      REGISTRY_DATASOURCE_PASSWORD: password
+networks:
+  apicurio-network:

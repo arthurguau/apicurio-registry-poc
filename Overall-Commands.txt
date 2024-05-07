@@ -1,0 +1,23 @@
+//--- reference 
+https://github.com/Apicurio/apicurio-registry
+
+https://hub.docker.com/_/postgres
+
+
+
+//-------------------- Database: postgres
+docker pull postgres:15
+
+docker run --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres
+
+
+//-------------------- App container image
+docker pull apicurio/apicurio-registry-sql:2.4.2.Final
+
+
+
+
+//-------------------- Understand how Postgres DB works?  
+1. user name -> database name? 
+2. check postgres database schema ...? 
+

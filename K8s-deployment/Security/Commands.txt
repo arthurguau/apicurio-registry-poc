@@ -1,0 +1,23 @@
+
+
+//-- Generate a keystore with a self-signed certificate.
+
+openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout tls.key -out tls.crt
+
+
+//-- Create a new secret to hold the certificate and the private key.
+In the left navigation menu of the OpenShift web console, click Workloads > Secrets > Create Key/Value Secret.
+
+Use the following values:
+Name: https-cert-secret
+Key 1: tls.key
+Value 1: tls.key (uploaded file)
+Key 2: tls.crt
+Value 2: tls.crt (uploaded file)
+
+or create the secret using the following command:
+oc create secret generic https-cert-secret --from-file=tls.key --from-file=tls.crt
+
+
+//-- Edit the spec.configuration.security.https section of the ApicurioRegistry CR 
+//-- for your Apicurio Registry deployment, for example:

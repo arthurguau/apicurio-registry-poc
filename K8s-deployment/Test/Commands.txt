@@ -1,0 +1,79 @@
+
+//-- ************** Deploy Postgres-DB *************** --//
+
+
+//-- create postgres-db namespace
+kubectl create ns postgres-db
+
+//-- deploy secrets
+kubectl apply -f postgres-config.yaml -n postgres-db
+
+//-- check configmap
+$ kubectl get configmap  -n postgres-db
+
+//-- apply pv 
+$ kubectl apply -f postgres-pvc-pv.yaml  -n postgres-db
+
+//-- check pvc
+$ kubectl get pvc -n postgres-db
+
+
+//-- apply deployment
+kubectl apply -f postgres-deployment.yaml -n postgres-db
+
+
+//-- check deployment
+kubectl get deployments -n postgres-db
+
+//-- delete deployment
+kubectl -n kube-system logs -f deployment/postgres
+
+kubectl get pods -n postgres-db
+
+
+//-- create a service
+kubectl apply -f postgres-service.yaml -n postgres-db
+
+//-- check all
+kubectl get all
+
+
+//-- connect to postgres database
+kubectl exec -it [pod-name] --  psql -h localhost -U admin --password -p 5432 postgresdb
+
+kubectl exec -it postgres-6d57c5f7db-z6tfs -n postgres-db --  psql -h localhost -U apicurio-registry --password -p 5432 apicurio-registry
+
+
+
+//-- ***************** deploy APICurio-Registry *************** --//
+
+kubectl create ns apicurio
+
+//-- create an external service
+kubectl apply -f external-postgres-db.yaml -n apicurio
+
+//-- check accessibility ??
+kubectl exec -it apicurio-8c9f7d65c-2s2fn sh -n apicurio
+
+//-- deploy
+kubectl apply -f apicurio-deployment.yaml -n apicurio
+
+//-- create a service
+kubectl apply -f apicurio-service.yaml -n apicurio
+
+
+
+//-- ***************** install NGINX ingress *************** --//
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.40.2/deploy/static/provider/cloud/deploy.yaml
+
+
+//-- port forward
+kubectl port-forward <pod-name> <local-port>:<remote-port>  -n namespace
+
+kubectl port-forward apicurio-7bf968cd85-m94qj -n apicurio 8080:8080
+
+
+//--- upload api files
+
+
+

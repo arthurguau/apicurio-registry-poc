@@ -1,0 +1,16 @@
+https://github.com/Apicurio/apicurio-registry-operator
+
+
+
+https://www.apicur.io/registry/docs/apicurio-registry-operator/1.2.0-dev-v2.x/assembly-operator-quickstart.html
+
+
+//-- 1. install Operator
+
+
+//-- 2. install CR
+
+kubectl apply -f https://raw.githubusercontent.com/Apicurio/apicurio-registry-operator/main/docs/modules/ROOT/examples/apicurioregistry_mem_cr.yaml -n $NAMESPACE
+
+
+ 

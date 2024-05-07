@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apicurio  # Sets Deployment name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apicurio
+  template:
+    metadata:
+      labels:
+        app: apicurio
+    spec:
+      containers:
+        - name: apicurio-registry
+          image: apicurio/apicurio-registry-sql:2.4.x-release # Sets Image
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 8080  # Exposes container port
+          env:
+            - name: REGISTRY_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres-saas/apicurio-registry"
+            - name: REGISTRY_DATASOURCE_USERNAME
+              value: "apicurio-registry"
+            - name: REGISTRY_DATASOURCE_PASSWORD
+              value: "password"
+              
+

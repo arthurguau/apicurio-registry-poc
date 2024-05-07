@@ -1,0 +1,23 @@
+
+
+
+//-- find volume dicectory path
+docker volume inspect config | jq -r '.[0].Mountpoint'
+
+
+Keycloak username: admin
+Keycloak password: 490WZj
+Keycloak URL: 192.168.0.6:8090
+Apicurio URL: 192.168.0.6:8080
+
+
+
+
+docker-compose -f docker-compose.keycloak.yml build
+docker-compose -f docker-compose.keycloak.yml up
+docker-compose -f docker-compose.apicurio.yml up
+
+
+
+picurio URL: http://YOUR_IP:8080 
+Keycloak URL: http://YOUR_IP:8090
