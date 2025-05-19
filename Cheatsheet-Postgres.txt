@@ -1,46 +1,49 @@
+
+
 //--- reference 
 https://github.com/Apicurio/apicurio-registry
 
 https://hub.docker.com/_/postgres
 
 
+//-- ########################################## --//
+//--          Database: postgres                --//
+//-- ########################################## --//
 
-//-------------------- Database: postgres
 docker pull postgres:15
 
-docker run --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres
+docker run -d \
+--name some-postgres \
+-e POSTGRES_PASSWORD=mysecretpassword \
+postgres
 
 
-//-------------- commands
+//-- ########################################## --//
+//--                commands                    --//
+//-- ########################################## --//
 
 psql -U ${userName}
 
-
-
 -- create a database
-
 
 -- create a user and password
 admin:   myadmin/Password617$
 servername: tinybankpostgres.postgres.database.azure.com
 
-
-
 -- List all databases via \l (or \list), or \l+ for more details
 ${userName}=# \l
-
 
 -- Connect to database via \c (or \connect)
 -- Take note of the change of database name in the command prompt.
 ${userName}=# \c apicurio-registry
 
-
 -- Display all tables (aka relations) via \dt or \dt+ for more details
 ${userName}=# \dt
-
 
 -- Display details of a particular table.
 ${userName}=# \d+ ${table}
 
 -- Query (SELECT)
 ${userName}=# SELECT * FROM {tableName};
+
+//-- #################  End  ################## --//

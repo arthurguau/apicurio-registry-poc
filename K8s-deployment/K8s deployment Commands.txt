@@ -9,7 +9,6 @@
 
 
 //-- Operator
-
 export NAMESPACE="default"
 
 curl -sSL "https://raw.githubusercontent.com/Apicurio/apicurio-registry-operator/v1.0.0/docs/resources/install.yaml" |
@@ -17,6 +16,5 @@ sed "s/{NAMESPACE}/$NAMESPACE/g" | kubectl apply -f - -n $NAMESPACE
 
 
 //-- apply
-
 kubectl apply -f install.yml -n apicurio-registry-operator-namespace
 
